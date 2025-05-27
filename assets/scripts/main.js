@@ -15,17 +15,17 @@ window.addEventListener('DOMContentLoaded', init);
 
 // Starts the program, all function calls trace back here
 async function init() {
-  // initialize ServiceWorker
-  initializeServiceWorker();
-  // Get the recipes from localStorage
-  let recipes;
-  try {
-    recipes = await getRecipes();
-  } catch (err) {
-    console.error(err);
-  }
-  // Add each recipe to the <main> element
-  addRecipesToDocument(recipes);
+    // initialize ServiceWorker
+    initializeServiceWorker();
+    // Get the recipes from localStorage
+    let recipes;
+    try {
+        recipes = await getRecipes();
+    } catch (err) {
+        console.error(err);
+    }
+    // Add each recipe to the <main> element
+    addRecipesToDocument(recipes);
 }
 
 /**
@@ -44,6 +44,7 @@ function initializeServiceWorker() {
   /*******************/
   // We first must register our ServiceWorker here before any of the code in
   // sw.js is executed.
+    
   // B1. TODO - Check if 'serviceWorker' is supported in the current browser
   // B2. TODO - Listen for the 'load' event on the window object.
   // Steps B3-B6 will be *inside* the event listener's function created in B2
@@ -53,6 +54,18 @@ function initializeServiceWorker() {
   //            log that it was successful.
   // B5. TODO - In the event that the service worker registration fails, console
   //            log that it has failed.
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('./sw.js')
+                .then(() => {
+                    console.log('Service Worker registered successfully.');
+                })
+                .catch((error) => {
+                    console.error('Service Worker registration failed:', error);
+                });
+        }
+        );
+    }
   // STEPS B6 ONWARDS WILL BE IN /sw.js
 }
 
@@ -65,39 +78,39 @@ function initializeServiceWorker() {
  * @returns {Array<Object>} An array of recipes found in localStorage
  */
 async function getRecipes() {
-  // EXPOSE - START (All expose numbers start with A)
-  // A1. Check local storage to see if there are any recipes.
-  //     If there are recipes, return them.
-  const recipesFromStorage = localStorage.getItem('recipes');
-  if (recipesFromStorage) {
-    return JSON.parse(recipesFromStorage);
-  }
-
-  // A2. Create an empty array to hold the recipes that you will fetch
-  let recipes = [];
-
-  // A3. Return a new Promise.
-  return new Promise(async (resolve, reject) => {
-    try {
-      // A4. Loop through each recipe in the RECIPE_URLS array constant declared above
-      for (let url of RECIPE_URLS) {
-        // A6. Fetch the URL
-        let response = await fetch(url);
-        // A7. Retrieve the JSON from the response
-        let recipe = await response.json();
-        // A8. Add the new recipe to the recipes array
-        recipes.push(recipe);
-      }
-      // A9. Save the recipes to storage and resolve the promise
-      saveRecipesToStorage(recipes);
-      resolve(recipes);
-    } catch (error) {
-      // A10. Log any errors from catch using console.error
-      console.error(error);
-      // A11. Pass any errors to the Promise's reject() function
-      reject(error);
+    // EXPOSE - START (All expose numbers start with A)
+    // A1. Check local storage to see if there are any recipes.
+    //     If there are recipes, return them.
+    const recipesFromStorage = localStorage.getItem('recipes');
+    if (recipesFromStorage) {
+        return JSON.parse(recipesFromStorage);
     }
-  });
+
+    // A2. Create an empty array to hold the recipes that you will fetch
+    let recipes = [];
+
+    // A3. Return a new Promise.
+    return new Promise(async (resolve, reject) => {
+        try {
+        // A4. Loop through each recipe in the RECIPE_URLS array constant declared above
+        for (let url of RECIPE_URLS) {
+            // A6. Fetch the URL
+            let response = await fetch(url);
+            // A7. Retrieve the JSON from the response
+            let recipe = await response.json();
+            // A8. Add the new recipe to the recipes array
+            recipes.push(recipe);
+        }
+        // A9. Save the recipes to storage and resolve the promise
+        saveRecipesToStorage(recipes);
+        resolve(recipes);
+        } catch (error) {
+        // A10. Log any errors from catch using console.error
+        console.error(error);
+        // A11. Pass any errors to the Promise's reject() function
+        reject(error);
+        }
+    });
 }
 
 /**
